@@ -2,12 +2,13 @@ import dotenv from 'dotenv';
 import express from 'express';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { insertEvent } from './lib/db.js';
 //import { isInvalid } from './lib/template-helpers.js';
 import { indexRouter } from './routes/index-routes.js';
 
 dotenv.config();
 
-const { PORT: port = 3000 } = process.env;
+const { PORT: port = 3002 } = process.env;
 
 const app = express();
 
@@ -20,12 +21,35 @@ app.use(express.static(join(path, '../public')));
 app.set('views', join(path, '../views'));
 app.set('view engine', 'ejs');
 
+function isInvalid(field, errors = []) {
+  // Boolean skilar `true` ef gildi er truthy (eitthvað fannst)
+  // eða `false` ef gildi er falsy (ekkert fannst: null)
+  return Boolean(errors.find((i) => i && i.param === field));
+}
+
+app.locals.isInvalid = isInvalid;
+
+app.locals.formatDate = (str) => {
+  let date = '';
+
+  try {
+    date = format(str || '', 'dd.MM.yyyy');
+  } catch {
+    return '';
+  }
+
+  return date;
+};
+
+/*
 app.locals = {
   // TODO hjálparföll fyrir template
 };
-
+*/
+  
 app.use('/', indexRouter);
 // TODO admin routes
+
 
 /** Middleware sem sér um 404 villur. */
 app.use((req, res) => {
@@ -44,3 +68,4 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.info(`Server running at http://localhost:${port}/`);
 });
+

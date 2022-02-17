@@ -7,5 +7,20 @@ CREATE TABLE IF NOT EXISTS users (
   password character varying(255) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS events(
+  id serial primary key,
+  name  varchar(64) NOT NULL,
+  slug varchar(256) NOT NULL,
+  description varchar(400) not null,
+  created timestamp with time zone not null default current_timestamp
+);
+
+CREATE TABLE IF NOT EXISTS singup (
+  id serial primary key,
+  name  varchar(64) NOT NULL,
+  comment varchar(400),
+  created timestamp with time zone not null default current_timestamp
+);
+
 -- Lykilorð: "123"
 INSERT INTO users (username, password) VALUES ('admin', '$2a$11$pgj3.zySyFOvIQEpD7W6Aund1Tw.BFarXxgLJxLbrzIv/4Nteisii');

@@ -1,0 +1,24 @@
+<section class="Events">
+    <h2 class="Events-title">All Events:</h2>
+  
+
+    <% if (events.length === 0) { %>
+      <p class="events__empty">No events.</p>
+    <% } else { %>
+      <table class="events__table" cellpadding="0">
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+        <% events.forEach((row) => { %>
+          <tr>
+            <td class="name"><%= row.name %></td>
+            <td class="description"><%= row.description %></td>
+            <td class="created"><%= row.created %></td>
+          </tr>
+        <% }) %>
+        </tr>
+      </table>
+    <% } %>
+  </section>
+  

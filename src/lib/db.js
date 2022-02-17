@@ -4,7 +4,7 @@ import pg from 'pg';
 const SCHEMA_FILE = './sql/schema.sql';
 const DROP_SCHEMA_FILE = './sql/drop.sql';
 
-const { DATABASE_URL: connectionString, NODE_ENV: nodeEnv = 'development' } =
+const { DATABASE_URL: connectionString, NODE_ENV: nodeEnv } =
   process.env;
 
 if (!connectionString) {
@@ -14,7 +14,7 @@ if (!connectionString) {
 
 // Notum SSL tengingu við gagnagrunn ef við erum *ekki* í development
 // mode, á heroku, ekki á local vél
-const ssl = nodeEnv === 'production' ? { rejectUnauthorized: false } : false;
+const ssl = nodeEnv === 'development' ? { rejectUnauthorized: false } : false;
 
 const pool = new pg.Pool({ connectionString, ssl });
 
@@ -57,8 +57,99 @@ export async function dropSchema(dropFile = DROP_SCHEMA_FILE) {
   return query(data.toString('utf-8'));
 }
 
+export async function insertEvent({
+  name, description
+} = {}){
+  let success = true;
+
+  let slug = name;
+
+  const q = `
+  INSERT INTO events
+    (name, slug, description)
+  VALUES
+    ($1, $2, $3);
+`;
+const values = [name, slug, description];
+
+try {
+  await query(q, values);
+} catch (e) {
+  console.error('Error inserting event', e);
+  success = false;
+}
+
+return success;
+}
+
+
+
 export async function end() {
   await pool.end();
 }
+
+export async function total(search) {
+  let searchPart = '';
+  if (search) {
+    searchPart = `
+      WHERE
+      to_tsvector('english', name) @@ plainto_tsquery('english', $3)
+      OR
+      to_tsvector('english', comment) @@ plainto_tsquery('english', $3)
+    `;
+  }
+
+  try {
+    const result = await query(
+      `SELECT COUNT(*) AS count FROM events ${searchPart}`,
+      search ? [search] : [],
+    );
+    return (result.rows && result.rows[0] && result.rows[0].count) || 0;
+  } catch (e) {
+    console.error('Error counting signatures', e);
+  }
+
+  return 0;
+}
+
+
+export async function list(offset = 0, limit = 10, search = '') {
+  const values = [offset, limit];
+
+  let searchPart = '';
+  if (search) {
+    searchPart = `
+      WHERE
+      to_tsvector('english', name) @@ plainto_tsquery('english', $3)
+      OR
+      to_tsvector('english', comment) @@ plainto_tsquery('english', $3)
+    `;
+    values.push(search);
+  }
+
+  let result = [];
+
+  try {
+    const q = `
+      SELECT
+        id, name, slug, description, created
+      FROM
+        events
+      ${searchPart}
+      OFFSET $1 LIMIT $2
+    `;
+
+    const queryResult = await query(q, values);
+
+    if (queryResult && queryResult.rows) {
+      result = queryResult.rows;
+    }
+  } catch (e) {
+    console.error('Error selecting events', e);
+  }
+
+  return result;
+}
+
 
 /* TODO útfæra aðgeðir á móti gagnagrunni */
