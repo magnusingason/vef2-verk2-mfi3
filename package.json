@@ -28,6 +28,7 @@
     "express-session": "^1.17.2",
     "express-validator": "^6.14.0",
     "faker": "^6.6.6",
+    "heroku": "^7.59.2",
     "passport": "^0.5.2",
     "passport-local": "^1.0.0",
     "pg": "^8.7.3",
