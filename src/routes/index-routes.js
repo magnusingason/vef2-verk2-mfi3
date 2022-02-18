@@ -1,8 +1,9 @@
 import express from 'express';
 import { catchErrors } from '../lib/catch-errors.js';
-import { insertEvent, list, total } from '../lib/db.js';
+import { insertEvent, list, total, signupList } from '../lib/db.js';
 import { body, validationResult } from 'express-validator';
 import xss from 'xss';
+import { insertSignup } from '../lib/db.js';
 
 
 export const indexRouter = express.Router();
@@ -38,6 +39,44 @@ async function indexRoute(req, res) {
     formData,
     events,
     paging,
+    admin: false,
+  });
+}
+
+async function signupRoute(req, res) {
+
+  let {page = 1} = req.query;
+  page = setPagenumber(page); 
+
+  const errors = [];
+  const formData = {
+    name: '',
+    comment: '',
+  };
+
+  let eventid = req.params.id;
+
+  const offset = (page - 1) * PAGE_SIZE;
+
+  const signup = await signupList(offset,PAGE_SIZE);
+
+  const filterByeventsID = (data, eventsID) => data.filter(d => d.event == eventsID)
+  let signups = filterByeventsID(signup, eventid);
+
+  const paging = await pagingInfo(
+    {
+      page, offset,
+    },
+  );
+
+  res.render('event', {
+    title: 'Events',
+    errors,
+    formData,
+    eventid,
+    signups,
+    paging,
+    admin: false,
   });
 }
 
@@ -58,6 +97,30 @@ async function register(req, res) {
 
   if (success) {
     return res.redirect('/');
+  }
+
+  return res.render('error', { title: 'Gat ekki skráð!', text: 'Hafðir þú skrifað undir áður?' });
+}
+
+async function signup(req, res) {
+  const {
+    name, comment,
+  } = req.body;
+
+  let success = true;
+  const eventsID = req.params.id;
+  const event = eventsID;
+
+  try {
+    success = await insertSignup({
+      name, comment, event
+    });
+  } catch (e) {
+    console.error(e);
+  }
+
+  if (success) {
+    return res.redirect('/event/'+eventsID);
   }
 
   return res.render('error', { title: 'Gat ekki skráð!', text: 'Hafðir þú skrifað undir áður?' });
@@ -105,6 +168,8 @@ async function validationCheck(req, res, next) {
 
 indexRouter.get('/', catchErrors(indexRoute));
 
+indexRouter.get('/event/:id', catchErrors(signupRoute));
+
 // TODO útfæra öll routes
 
 indexRouter.post(
@@ -115,6 +180,15 @@ indexRouter.post(
   sanitizationMiddleware,
   catchErrors(register),
 );
+
+indexRouter.post(
+  '/event/:id',
+  validationMiddleware,
+  xssSanitizationMiddleware,
+  catchErrors(validationCheck),
+  sanitizationMiddleware,
+  catchErrors(signup),
+)
 
 export async function pagingInfo({
   page, offset, totalRegistrations, registrationsLength, baseUrl = '',

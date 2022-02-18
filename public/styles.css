@@ -2,6 +2,7 @@ html {
   box-sizing: border-box;
 }
 
+
 *,
 *::before,
 *::after {
@@ -18,12 +19,34 @@ body {
   padding: 1rem;
 }
 
+.wrapper {
+  margin: auto;
+  padding: 10px;
+  width: 50%;
+  display: flex;
+}
+
 h1,
 h2,
 h3 {
   margin-bottom: 1rem;
 }
 
+td {
+  margin-right: 40px;
+  padding: 4px;
+}
+
+label {
+  margin: 4px;
+}
+button {
+  margin-left: 300px;
+  margin-top: 20px;
+  padding: 5px;
+}
+
+}
 section {
   margin-bottom: 1rem;
 }

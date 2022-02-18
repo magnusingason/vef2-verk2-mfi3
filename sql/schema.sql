@@ -9,17 +9,18 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS events(
   id serial primary key,
-  name  varchar(64) NOT NULL,
+  name  varchar(64) NOT NULL UNIQUE,
   slug varchar(256) NOT NULL,
   description varchar(400) not null,
   created timestamp with time zone not null default current_timestamp
 );
 
-CREATE TABLE IF NOT EXISTS singup (
+CREATE TABLE IF NOT EXISTS signup (
   id serial primary key,
   name  varchar(64) NOT NULL,
   comment varchar(400),
-  created timestamp with time zone not null default current_timestamp
+  created timestamp with time zone not null default current_timestamp,
+  event integer NOT NULL
 );
 
 -- Lykilorð: "123"

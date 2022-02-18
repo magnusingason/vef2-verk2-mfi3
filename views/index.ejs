@@ -1,12 +1,15 @@
 <%- include('header') -%>
 
+<div class="wrapper"></div>
 <h1><%= title %></h1>
 
 <div>
-<%- include('eventsform') -%>
-</div>
-<div>
 <%- include('list') -%>
+</div>
+
+<div class="login">
+    <p class="logintext" style="text-align: center; margin-top: 1rem;"><a href="/admin/login">click to login</a></p>
+</div>
 </div>
 
 <%- include('footer') -%>
