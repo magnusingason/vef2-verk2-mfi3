@@ -52,6 +52,11 @@ section {
 }
 
 input[type=text] {
-  padding:10px;
-  margin:10px 0; // add top and bottom margin
+  margin: 10px 0;
+  padding: 10px;
+}
+
+input[type=password] {
+  margin: 10px 0;
+  padding: 10px;
 }
