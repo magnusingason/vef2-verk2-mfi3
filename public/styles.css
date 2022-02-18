@@ -20,10 +20,10 @@ body {
 }
 
 .wrapper {
+  display: flex;
   margin: auto;
   padding: 10px;
   width: 50%;
-  display: flex;
 }
 
 h1,
@@ -40,13 +40,18 @@ td {
 label {
   margin: 4px;
 }
+
 button {
   margin-left: 300px;
   margin-top: 20px;
   padding: 5px;
 }
 
-}
 section {
   margin-bottom: 1rem;
+}
+
+input[type=text] {
+  padding:10px;
+  margin:10px 0; // add top and bottom margin
 }
